@@ -140,10 +140,24 @@ ipcMain.handle('save-text-file', async (event, { filename, text }) => {
 
 
 
-ipcMain.handle('fetch-article', async (event, url) => {
+
+ipcMain.handle('fetch-article', async (event, payload) => {
+  const {url, apiKey, bot} = payload;
   try {
     if (!url || !/^https?:\/\//i.test(url)) return { error: 'URL không hợp lệ.' };
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36' } });
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const html = await res.text();
+    // Gửi HTML qua Gemini để trích xuất phần nội dung chính (body/content)
+    const sys = 'Bạn là chuyên gia trích xuất nội dung bài báo. Hãy phân tích HTML, chỉ trích xuất phần nội dung chính của bài báo (không lấy quảng cáo, menu, header, footer, sidebar). Trả về chỉ phần text nội dung, không thêm lời dẫn.';
+    const prompt = `Trích xuất nội dung chính từ HTML này (lấy đúng nội dung bài báo, bỏ thừa): ${html.slice(0, 30000)}`;
+    const text = await callApiGeneric({bot: bot, prompt: prompt});
+    const cleaned = text?.candidates?.[0]?.content?.parts?.[0]?.text || text?.choices?.[0]?.message?.content || '';
+    return { text: cleaned.trim() };
+  } catch (e) {
+    return { error: e.message || String(e) };
+  }
+});
+
     const html = await res.text();
     let body = html;
     const article = html.match(/<article[\s\S]*?<\/article>/i);

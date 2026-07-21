@@ -519,7 +519,9 @@ ${regenerated}`;
 async function fetchArticleIntoTopic() {
   const url = document.getElementById('articleUrl').value.trim();
   if (!url) return alert('Dán link bài báo trước.');
-  const data = await window.api.fetchArticle(url);
+  const botIdx = document.getElementById('selectBotTab3').value;
+  const bot = config.bots[Number(botIdx)];
+  const data = await window.api.fetchArticle({url, apiKey: bot.apiKeys[0], bot});
   if (data.error) return alert('Lỗi lấy bài báo: ' + data.error);
   document.getElementById('topic').value = data.text || '';
 }
@@ -527,7 +529,9 @@ async function fetchArticleIntoTopic() {
 async function fetchArticleIntoRewrite() {
   const url = document.getElementById('rewriteArticleUrl').value.trim();
   if (!url) return alert('Dán link bài báo trước.');
-  const data = await window.api.fetchArticle(url);
+  const botIdx = document.getElementById('selectBotTab3').value;
+  const bot = config.bots[Number(botIdx)];
+  const data = await window.api.fetchArticle({url, apiKey: bot.apiKeys[0], bot});
   if (data.error) return alert('Lỗi lấy bài báo: ' + data.error);
   document.getElementById('originalContent').value = data.text || '';
 }
