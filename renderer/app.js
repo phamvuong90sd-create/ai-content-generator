@@ -545,7 +545,15 @@ function downloadRewriteResult() {
   downloadOutput('outputTab3', 'noi-dung-viet-lai.txt');
 }
 
+async function copyOriginalContent() {
+  const text = document.getElementById('originalContent').value || '';
+  if (!text.trim()) return alert('Chưa có nội dung để copy.');
+  await navigator.clipboard.writeText(text);
+  alert('Đã copy nội dung!');
+}
+
 async function rewriteContent() {
+
   const botIdx = 0;
   const bot = config.bots[Number(botIdx)];
   const original = document.getElementById('originalContent').value;
