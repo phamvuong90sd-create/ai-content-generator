@@ -546,14 +546,13 @@ function downloadRewriteResult() {
 }
 
 async function rewriteContent() {
-  const botIdx = document.getElementById('selectBotTab3').value;
+  const botIdx = 0;
   const bot = config.bots[Number(botIdx)];
   const original = document.getElementById('originalContent').value;
   const req = document.getElementById('rewriteRequirements').value;
   const rMinRaw = document.getElementById('rewriteMinChars')?.value?.trim() || '';
   const rMaxRaw = document.getElementById('rewriteMaxChars')?.value?.trim() || '';
-  localStorage.setItem('aiRewriteMinChars', rMinRaw);
-  localStorage.setItem('aiRewriteMaxChars', rMaxRaw);
+  
   const rewriteLengthInstruction = buildLengthInstruction(rMinRaw ? Number(rMinRaw) : 0, rMaxRaw ? Number(rMaxRaw) : 0);
   setOutput('outputTab3', 'Đang viết lại...');
   const prompt = `Rewrite the following content based on these requirements: ${req || 'Rewrite naturally and improve clarity.'}.
