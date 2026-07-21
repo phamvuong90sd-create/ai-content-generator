@@ -14,7 +14,7 @@
   "type": "commonjs",
   "devDependencies": {
     "electron": "^39.2.4",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.15.3"
   },
   "build": {
     "appId": "com.local.aicontentgenerator",
