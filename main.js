@@ -139,22 +139,36 @@ ipcMain.handle('save-text-file', async (event, { filename, text }) => {
 });
 
 
+
 ipcMain.handle('fetch-article', async (event, url) => {
   try {
     if (!url || !/^https?:\/\//i.test(url)) return { error: 'URL không hợp lệ.' };
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 AIContentGenerator/1.0' } });
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36' } });
     const html = await res.text();
-    const doc = html.match(/<article[\s\S]*?>(.*?)<\/article>/i); const body = doc ? doc[1] : html; const cleaned = body
+    let body = html;
+    const article = html.match(/<article[\s\S]*?<\/article>/i);
+    const main = html.match(/<main[\s\S]*?<\/main>/i);
+    if (article) body = article[0]; else if (main) body = main[0];
+    let text = body
       .replace(/<script[\s\S]*?<\/script>/gi, ' ')
       .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<nav[\s\S]*?<\/nav>/gi, ' ')
+      .replace(/<header[\s\S]*?<\/header>/gi, ' ')
+      .replace(/<footer[\s\S]*?<\/footer>/gi, ' ')
+      .replace(/<img[^>]*>/gi, ' ')
+      .replace(/<h1[\s\S]*?<\/h1>/gi, ' ')
+      .replace(/<h2[\s\S]*?<\/h2>/gi, ' ')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n')
       .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ')
       .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/\s+/g, ' ')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\n\s*\n+/g, '\n\n')
+      .replace(/[ \t]+/g, ' ')
       .trim();
-    return { text: cleaned.slice(0, 60000) };
+    return { text: text.slice(0, 80000) };
   } catch (e) {
     return { error: e.message || String(e) };
   }
