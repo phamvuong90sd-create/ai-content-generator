@@ -146,8 +146,10 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Danh sách tiêu đề (mỗi dòng 1 tiêu đề)</label>
-        <textarea id="topic" rows="5" placeholder="Tiêu đề 1..."></textarea>
+        <label>Dán link bài báo hoặc nhập danh sách tiêu đề (mỗi dòng 1 tiêu đề)</label>
+        <input type="text" id="articleUrl" placeholder="Dán link bài báo để lấy nội dung..." style="margin-bottom:8px;">
+        <button class="secondary" style="margin-bottom:8px" onclick="fetchArticleIntoTopic()">🔗 Lấy nội dung từ link</button>
+        <textarea id="topic" rows="5" placeholder="Dán link bài báo ở trên hoặc nhập tiêu đề/nội dung mỗi dòng..."></textarea>
       </div>
       <div class="form-group">
         <label>Yêu cầu thêm</label>
@@ -170,6 +172,7 @@
               <button class="btn-primary" onclick="regenerateActiveTitle()">🔄 Tạo lại tiêu đề này</button>
               <button class="secondary" onclick="copyOutput('outputTab2')">📋 Copy prompt</button>
               <button class="secondary" onclick="downloadActiveResult()">💾 Tải .txt</button>
+              <button class="secondary" onclick="downloadAllResults()">📦 Tải toàn bộ nội dung</button>
               <div class="char-counter" id="counterTab2" style="margin-bottom:0; margin-left:auto;">0 ký tự</div>
             </div>
             <div id="outputTab2" class="output-box"></div>
@@ -184,18 +187,32 @@
     <div class="card">
       <h3>Viết lại nội dung</h3>
       <div class="form-group">
-        <label>Chọn Chatbot</label>
+        <label>Dán link bài báo vào để lấy nội dung</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="rewriteArticleUrl" placeholder="Dán link bài báo...">
+          <button class="secondary" onclick="fetchArticleIntoRewrite()" style="width:auto; white-space:nowrap;">🔗 Lấy nội dung</button>
+        </div>
+        <label style="margin-top:12px">Chọn Chatbot</label>
         <select id="selectBotTab3"></select>
       </div>
       <div class="form-group">
-        <label>Nội dung gốc</label>
+        <label>Nội dung</label>
         <textarea id="originalContent" rows="8"></textarea>
       </div>
       <div class="form-group">
-        <label>Yêu cầu viết lại</label>
+        <label>Yêu cầu viết / theme</label>
         <textarea id="rewriteRequirements" rows="2"></textarea>
       </div>
+      <div class="form-group">
+        <label>Độ dài viết lại (ký tự)</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="number" id="rewriteMinChars" placeholder="Từ">
+          <span style="color:#94a3b8;">-</span>
+          <input type="number" id="rewriteMaxChars" placeholder="Đến">
+        </div>
+      </div>
       <button onclick="rewriteContent()">♻️ Bắt đầu viết lại</button>
+      <button class="secondary" onclick="downloadRewriteResult()">💾 Tải về</button>
       <div class="output-wrap" style="margin-top:20px">
         <div class="char-counter" id="counterTab3">0 ký tự</div>
         <div id="outputTab3" class="output-box"></div>

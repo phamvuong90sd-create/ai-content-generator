@@ -50,7 +50,11 @@ function saveLengthSettings() {
 }
 
 function bindLengthSettingsAutosave() {
-  ['minChars', 'maxChars'].forEach(id => {
+  const rMin = document.getElementById('rewriteMinChars');
+  const rMax = document.getElementById('rewriteMaxChars');
+  if (rMin) rMin.value = localStorage.getItem('aiRewriteMinChars') || '';
+  if (rMax) rMax.value = localStorage.getItem('aiRewriteMaxChars') || '';
+  ['minChars', 'maxChars', 'rewriteMinChars', 'rewriteMaxChars'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', saveLengthSettings);
   });
@@ -511,13 +515,52 @@ ${regenerated}`;
   }
 }
 
+
+async function fetchArticleIntoTopic() {
+  const url = document.getElementById('articleUrl').value.trim();
+  if (!url) return alert('Dán link bài báo trước.');
+  const data = await window.api.fetchArticle(url);
+  if (data.error) return alert('Lỗi lấy bài báo: ' + data.error);
+  document.getElementById('topic').value = data.text || '';
+}
+
+async function fetchArticleIntoRewrite() {
+  const url = document.getElementById('rewriteArticleUrl').value.trim();
+  if (!url) return alert('Dán link bài báo trước.');
+  const data = await window.api.fetchArticle(url);
+  if (data.error) return alert('Lỗi lấy bài báo: ' + data.error);
+  document.getElementById('originalContent').value = data.text || '';
+}
+
+async function downloadAllResults() {
+  if (!generatedResultsByTitle.length) return alert('Chưa có nội dung để tải.');
+  const text = generatedResultsByTitle.map((x,i)=>`===== ${i+1}. ${x.title} =====
+
+${cleanPromptText(x.content||'')}`).join('
+
+');
+  await window.api.saveTextFile({ filename: 'tat-ca-noi-dung-sang-tao.txt', text });
+  alert('Đã lưu toàn bộ nội dung!');
+}
+
+function downloadRewriteResult() {
+  downloadOutput('outputTab3', 'noi-dung-viet-lai.txt');
+}
+
 async function rewriteContent() {
   const botIdx = document.getElementById('selectBotTab3').value;
   const bot = config.bots[Number(botIdx)];
   const original = document.getElementById('originalContent').value;
   const req = document.getElementById('rewriteRequirements').value;
+  const rMinRaw = document.getElementById('rewriteMinChars')?.value?.trim() || '';
+  const rMaxRaw = document.getElementById('rewriteMaxChars')?.value?.trim() || '';
+  localStorage.setItem('aiRewriteMinChars', rMinRaw);
+  localStorage.setItem('aiRewriteMaxChars', rMaxRaw);
+  const rewriteLengthInstruction = buildLengthInstruction(rMinRaw ? Number(rMinRaw) : 0, rMaxRaw ? Number(rMaxRaw) : 0);
   setOutput('outputTab3', 'Đang viết lại...');
-  const prompt = `Rewrite the following content based on these requirements: ${req || 'Rewrite naturally and improve clarity.'}. 
+  const prompt = `Rewrite the following content based on these requirements: ${req || 'Rewrite naturally and improve clarity.'}.
+${rewriteLengthInstruction}
+
 Return only the rewritten content.
 
 Original content:

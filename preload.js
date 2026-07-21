@@ -5,5 +5,6 @@ contextBridge.exposeInMainWorld('api', {
   saveConfig: (config) => ipcRenderer.invoke('save-config', config),
   callApi: (payload) => ipcRenderer.invoke('call-api', payload),
   selectFile: () => ipcRenderer.invoke('select-file'),
-  saveTextFile: (payload) => ipcRenderer.invoke('save-text-file', payload)
+  saveTextFile: (payload) => ipcRenderer.invoke('save-text-file', payload),
+  fetchArticle: (url) => ipcRenderer.invoke('fetch-article', url)
 });

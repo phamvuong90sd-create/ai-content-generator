@@ -138,5 +138,27 @@ ipcMain.handle('save-text-file', async (event, { filename, text }) => {
   return filePath;
 });
 
+
+ipcMain.handle('fetch-article', async (event, url) => {
+  try {
+    if (!url || !/^https?:\/\//i.test(url)) return { error: 'URL không hợp lệ.' };
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 AIContentGenerator/1.0' } });
+    const html = await res.text();
+    const cleaned = html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return { text: cleaned.slice(0, 60000) };
+  } catch (e) {
+    return { error: e.message || String(e) };
+  }
+});
+
 app.whenReady().then(createWindow);
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
