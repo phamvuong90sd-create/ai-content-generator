@@ -534,11 +534,9 @@ async function fetchArticleIntoRewrite() {
 
 async function downloadAllResults() {
   if (!generatedResultsByTitle.length) return alert('Chưa có nội dung để tải.');
-  const text = generatedResultsByTitle.map((x,i)=>`===== ${i+1}. ${x.title} =====
-
-${cleanPromptText(x.content||'')}`).join('
-
-');
+  const text = generatedResultsByTitle
+    .map((x, i) => `===== ${i + 1}. ${x.title} =====\n\n${cleanPromptText(x.content || '')}`)
+    .join('\n\n');
   await window.api.saveTextFile({ filename: 'tat-ca-noi-dung-sang-tao.txt', text });
   alert('Đã lưu toàn bộ nội dung!');
 }
