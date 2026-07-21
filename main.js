@@ -141,34 +141,25 @@ ipcMain.handle('save-text-file', async (event, { filename, text }) => {
 
 
 
-ipcMain.handle('fetch-article', async (event, payload) => {
-  const {url, apiKey, bot} = payload;
-  try {
-    if (!url || !/^https?:\/\//i.test(url)) return { error: 'URL không hợp lệ.' };
-    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-    const html = await res.text();
-    // Gửi HTML qua Gemini để trích xuất phần nội dung chính (body/content)
-    const sys = 'Bạn là chuyên gia trích xuất nội dung bài báo. Hãy phân tích HTML, chỉ trích xuất phần nội dung chính của bài báo (không lấy quảng cáo, menu, header, footer, sidebar). Trả về chỉ phần text nội dung, không thêm lời dẫn.';
-    const prompt = `Trích xuất nội dung chính từ HTML này (lấy đúng nội dung bài báo, bỏ thừa): ${html.slice(0, 30000)}`;
-    const text = await callApiGeneric({bot: bot, prompt: prompt});
-    const cleaned = text?.candidates?.[0]?.content?.parts?.[0]?.text || text?.choices?.[0]?.message?.content || '';
-    return { text: cleaned.trim() };
-  } catch (e) {
-    return { error: e.message || String(e) };
-  }
-});
 
+ipcMain.handle('fetch-article', async (event, payload) => {
+  try {
+    const url = typeof payload === 'string' ? payload : payload?.url;
+    const bot = typeof payload === 'object' ? payload?.bot : null;
+    if (!url || !/^https?:\/\//i.test(url)) return { error: 'URL không hợp lệ.' };
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36' } });
     const html = await res.text();
     let body = html;
     const article = html.match(/<article[\s\S]*?<\/article>/i);
     const main = html.match(/<main[\s\S]*?<\/main>/i);
     if (article) body = article[0]; else if (main) body = main[0];
-    let text = body
+    let roughText = body
       .replace(/<script[\s\S]*?<\/script>/gi, ' ')
       .replace(/<style[\s\S]*?<\/style>/gi, ' ')
       .replace(/<nav[\s\S]*?<\/nav>/gi, ' ')
       .replace(/<header[\s\S]*?<\/header>/gi, ' ')
       .replace(/<footer[\s\S]*?<\/footer>/gi, ' ')
+      .replace(/<aside[\s\S]*?<\/aside>/gi, ' ')
       .replace(/<img[^>]*>/gi, ' ')
       .replace(/<h1[\s\S]*?<\/h1>/gi, ' ')
       .replace(/<h2[\s\S]*?<\/h2>/gi, ' ')
@@ -182,7 +173,13 @@ ipcMain.handle('fetch-article', async (event, payload) => {
       .replace(/\n\s*\n+/g, '\n\n')
       .replace(/[ \t]+/g, ' ')
       .trim();
-    return { text: text.slice(0, 80000) };
+    if (bot && roughText) {
+      const prompt = `Bạn là chuyên gia trích xuất bài báo. Từ văn bản thô dưới đây, chỉ giữ lại nội dung chính liên quan trực tiếp tới bài báo/thời sự. Bỏ menu, quảng cáo, tiêu đề phụ không liên quan, ảnh, chú thích ảnh, gợi ý bài khác, thông tin bản quyền. Trả về nội dung sạch, không thêm lời dẫn.\n\n${roughText.slice(0, 50000)}`;
+      const data = await callApiGeneric({ bot, prompt });
+      const aiText = data?.choices?.[0]?.message?.content || data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (aiText.trim()) roughText = aiText.trim();
+    }
+    return { text: roughText.slice(0, 80000) };
   } catch (e) {
     return { error: e.message || String(e) };
   }
