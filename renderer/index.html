@@ -189,14 +189,7 @@
       <div class="form-group">
         
         
-      <div class="form-group">
-        <label>Độ dài viết lại (ký tự)</label>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <input type="number" id="rewriteMinChars" placeholder="Từ">
-          <span style="color:#94a3b8;">-</span>
-          <input type="number" id="rewriteMaxChars" placeholder="Đến">
-        </div>
-      </div>
+
       <div class="form-group">
         <label>Dán link bài báo vào để lấy nội dung</label>
         <div style="display:flex; gap:8px;">
@@ -204,8 +197,7 @@
           <button class="secondary" onclick="fetchArticleIntoRewrite()" style="width:auto; white-space:nowrap;">🔗 Lấy nội dung</button>
         </div>
       </div>
-        <label style="margin-top:12px">Chọn Chatbot</label>
-        <select id="selectBotTab3"></select>
+        
       </div>
       <div class="form-group">
         <label>Nội dung</label>
@@ -215,14 +207,7 @@
         <label>Yêu cầu viết / theme</label>
         <textarea id="rewriteRequirements" rows="2"></textarea>
       </div>
-      <div class="form-group">
-        <label>Độ dài viết lại (ký tự)</label>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <input type="number" id="rewriteMinChars" placeholder="Từ">
-          <span style="color:#94a3b8;">-</span>
-          <input type="number" id="rewriteMaxChars" placeholder="Đến">
-        </div>
-      </div>
+
       <button onclick="rewriteContent()">♻️ Bắt đầu viết lại</button>
       <button class="secondary" onclick="downloadRewriteResult()">💾 Tải về</button>
       <div class="output-wrap" style="margin-top:20px">

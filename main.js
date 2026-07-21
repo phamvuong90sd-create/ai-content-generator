@@ -144,7 +144,7 @@ ipcMain.handle('fetch-article', async (event, url) => {
     if (!url || !/^https?:\/\//i.test(url)) return { error: 'URL không hợp lệ.' };
     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 AIContentGenerator/1.0' } });
     const html = await res.text();
-    const cleaned = html.replace(/<article[\s\S]*?>(.*?)<\/article>/i, '$1')
+    const doc = html.match(/<article[\s\S]*?>(.*?)<\/article>/i); const body = doc ? doc[1] : html; const cleaned = body
       .replace(/<script[\s\S]*?<\/script>/gi, ' ')
       .replace(/<style[\s\S]*?<\/style>/gi, ' ')
       .replace(/<[^>]+>/g, ' ')
